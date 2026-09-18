@@ -1,9 +1,12 @@
+using System;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -62,21 +65,39 @@ namespace Reminders.Api.Test
         }
 
         // Migrations normally run in the dedicated MigrationsRunner service (ADR-0004).
-        // Apply only the Postgres set here, using the same namespace filter as the runner.
+        // Both providers' migrations ship in one assembly, so migrating to the last
+        // Postgres id would also apply any SqlServer migration whose id sorts below it.
+        // Those are stamped into the history table as already applied first, which makes
+        // the Postgres set the only thing that can run whatever the id ordering. Only
+        // migrations below the target are stamped: EF reverts applied migrations that
+        // sort above the target, which would undo the schema just created.
         private static void ApplyPostgresMigrations()
         {
             using var scope = factory.Services.CreateScope();
 
             var db = scope.ServiceProvider.GetRequiredService<RemindersContext>();
 
-            var migrationsAssembly = db.GetInfrastructure().GetRequiredService<IMigrationsAssembly>();
-            var migrator = db.GetInfrastructure().GetRequiredService<IMigrator>();
+            var infrastructure = db.GetInfrastructure();
+            var migrationsAssembly = infrastructure.GetRequiredService<IMigrationsAssembly>();
+            var history = infrastructure.GetRequiredService<IHistoryRepository>();
+            var migrator = infrastructure.GetRequiredService<IMigrator>();
 
-            var target = migrationsAssembly.Migrations
+            var postgresMigrations = migrationsAssembly.Migrations
                 .Where(kv => (kv.Value.Namespace ?? string.Empty).Contains(".Postgres."))
                 .Select(kv => kv.Key)
-                .OrderBy(id => id)
-                .Last();
+                .OrderBy(id => id, StringComparer.Ordinal)
+                .ToList();
+
+            var target = postgresMigrations.Last();
+
+            var otherProviderMigrations = migrationsAssembly.Migrations.Keys
+                .Where(id => !postgresMigrations.Contains(id)
+                             && string.CompareOrdinal(id, target) < 0);
+
+            db.Database.ExecuteSqlRaw(history.GetCreateIfNotExistsScript());
+
+            foreach (var id in otherProviderMigrations)
+                db.Database.ExecuteSqlRaw(history.GetInsertScript(new HistoryRow(id, ProductInfo.GetVersion())));
 
             migrator.Migrate(target);
         }

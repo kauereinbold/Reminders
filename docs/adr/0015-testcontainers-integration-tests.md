@@ -37,7 +37,10 @@ shell in YAML.
 `WebApplicationFactory<Program>` hosts the API in the test process;
 `Testcontainers.PostgreSql` starts a throwaway database per run. Buys one
 command that behaves identically locally and in CI. Costs: two test-only
-dependencies, and a `public partial class Program` marker in the API.
+dependencies, and a `public partial class Program` marker in the API. The test
+project's net package count still falls: the three
+`Microsoft.Extensions.Configuration.*` packages that existed only to read the
+old `appsettings.json` go away with it.
 
 ## Decision
 
@@ -49,9 +52,13 @@ these tests assert on the database path and the real chain writes are already
 best effort in production code.
 
 Migrations are applied by the fixture rather than by the API, which keeps
-ADR-0004 intact: the API still does not migrate, and the fixture applies only
-the `.Postgres.` migration namespace, the same filter the migrations runner
-uses.
+ADR-0004 intact: the API still does not migrate. Both providers' migrations ship
+in one assembly, and EF applies every migration whose id sorts at or below the
+target, so selecting the last `.Postgres.` id is not on its own enough. The
+fixture also stamps any non-Postgres migration that sorts below that target into
+the history table as already applied, so the Postgres set is the only thing that
+can run whatever the id ordering. Only migrations below the target are stamped,
+because EF reverts applied migrations that sort above it.
 
 The suite is wired into `dotnet - build - pull request` as a step alongside the
 unit test step, so it gates every .NET pull request.
@@ -67,4 +74,6 @@ startup and migrations.
 
 Watch out for: the fixture duplicates the migrations runner's namespace filter,
 so a change to how provider migrations are laid out has to be reflected in both
-places.
+places. The runner still has the plain filter without the history stamping, so
+it keeps the id-ordering hazard this fixture now guards against. That is
+production code outside this change and needs its own issue.
