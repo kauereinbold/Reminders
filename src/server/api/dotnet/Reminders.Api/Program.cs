@@ -71,3 +71,7 @@ app
 // app.MigrateRemindersDatabase(); // REMOVED - decoupled from API startup
 
 app.Run();
+
+// Exposes the implicit Program class so integration tests can host the API
+// in-process via WebApplicationFactory<Program>.
+public partial class Program { }
