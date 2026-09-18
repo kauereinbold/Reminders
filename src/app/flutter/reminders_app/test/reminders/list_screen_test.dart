@@ -10,11 +10,7 @@ import 'package:reminders_app/api/reminder.dart';
 import 'package:reminders_app/reminders/list_screen.dart';
 import 'package:reminders_app/theme/tokens.dart';
 
-/// Dates are relative to the real today: the screen groups against it.
-DateTime dayFromToday(int offset) {
-  final now = DateTime.now();
-  return DateTime.utc(now.year, now.month, now.day).add(Duration(days: offset));
-}
+import '../helpers.dart';
 
 Map<String, dynamic> reminderJson({
   required String id,

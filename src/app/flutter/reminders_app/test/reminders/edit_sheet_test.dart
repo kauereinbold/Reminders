@@ -10,11 +10,7 @@ import 'package:reminders_app/reminders/grouping.dart';
 import 'package:reminders_app/reminders/list_screen.dart';
 import 'package:reminders_app/theme/tokens.dart';
 
-/// Dates are relative to the real today: the screen groups against it.
-DateTime dayFromToday(int offset) {
-  final now = DateTime.now();
-  return DateTime.utc(now.year, now.month, now.day).add(Duration(days: offset));
-}
+import '../helpers.dart';
 
 final upcoming = {
   'id': '3',
@@ -62,6 +58,27 @@ Future<void> openEditSheet(WidgetTester tester, String id) async {
 }
 
 void main() {
+  testWidgets('tapping the checkbox toggles without opening the sheet', (
+    tester,
+  ) async {
+    // The checkbox sits inside the card, which opens the sheet on tap. This
+    // pins which of the two nested taps wins: the checkbox must take it, or
+    // the sheet opens every time someone ticks a reminder off.
+    final requests = await pumpScreen(
+      tester,
+      items: [upcoming],
+      onWrite: (_) =>
+          http.Response(jsonEncode({...upcoming, 'isDone': true}), 200),
+    );
+
+    await tester.tap(find.byKey(const ValueKey('toggle-3')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Edit reminder'), findsNothing);
+    expect(requests.last.method, 'PUT');
+    expect(jsonDecode(requests.last.body)['isDone'], true);
+  });
+
   testWidgets('FAB opens the create sheet defaulting to tomorrow', (
     tester,
   ) async {
