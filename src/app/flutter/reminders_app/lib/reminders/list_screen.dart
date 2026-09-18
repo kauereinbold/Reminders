@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../api/api_client.dart';
 import '../api/reminder.dart';
 import '../theme/tokens.dart';
+import 'edit_sheet.dart';
 import 'grouping.dart';
 
 /// Mobile reminders list: sticky header with search and filter chips,
@@ -76,6 +77,25 @@ class _RemindersListScreenState extends State<RemindersListScreen> {
   static List<Reminder> _replace(List<Reminder> items, Reminder updated) =>
       items.map((i) => i.id == updated.id ? updated : i).toList();
 
+  /// Opens the create ([initial] null) or edit sheet and applies its result.
+  Future<void> _openSheet([Reminder? initial]) async {
+    final result = await showReminderSheet(
+      context,
+      api: widget.api,
+      initial: initial,
+    );
+    if (!mounted || result == null) return;
+    setState(() {
+      _items = switch (result) {
+        ReminderSaved(:final reminder) =>
+          _items.any((i) => i.id == reminder.id)
+              ? _replace(_items, reminder)
+              : [..._items, reminder],
+        ReminderDeleted(:final id) => _items.where((i) => i.id != id).toList(),
+      };
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final today = startOfToday();
@@ -101,26 +121,25 @@ class _RemindersListScreenState extends State<RemindersListScreen> {
             _ProgressStrip(progress: progress),
             if (_error != null) _ErrorBanner(message: _error!, onRetry: _load),
             Expanded(
-              child:
-                  _loading
-                      ? const Center(child: CircularProgressIndicator())
-                      : RefreshIndicator(
-                        onRefresh: _load,
-                        child: _List(
-                          groups: groups,
-                          today: today,
-                          view: _view,
-                          query: _query,
-                          onToggle: _toggle,
-                        ),
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : RefreshIndicator(
+                      onRefresh: _load,
+                      child: _List(
+                        groups: groups,
+                        today: today,
+                        view: _view,
+                        query: _query,
+                        onToggle: _toggle,
+                        onEdit: _openSheet,
                       ),
+                    ),
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        // The create sheet arrives with issue #339.
-        onPressed: () {},
+        onPressed: _openSheet,
         backgroundColor: AppColors.ink,
         foregroundColor: AppColors.inputFill,
         icon: const Icon(Icons.add, size: 16),
@@ -317,7 +336,10 @@ class _ProgressStrip extends StatelessWidget {
             child: Text(
               progress.caption,
               textAlign: TextAlign.right,
-              style: const TextStyle(fontSize: 12.5, color: AppColors.bodyMuted),
+              style: const TextStyle(
+                fontSize: 12.5,
+                color: AppColors.bodyMuted,
+              ),
             ),
           ),
         ],
@@ -359,6 +381,7 @@ class _List extends StatelessWidget {
     required this.view,
     required this.query,
     required this.onToggle,
+    required this.onEdit,
   });
 
   final List<ReminderGroup> groups;
@@ -366,6 +389,7 @@ class _List extends StatelessWidget {
   final ReminderView view;
   final String query;
   final ValueChanged<Reminder> onToggle;
+  final ValueChanged<Reminder> onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -393,6 +417,7 @@ class _List extends StatelessWidget {
                   reminder: reminder,
                   today: today,
                   onToggle: () => onToggle(reminder),
+                  onEdit: () => onEdit(reminder),
                 ),
               ),
           ],
@@ -430,61 +455,72 @@ class _ReminderCard extends StatelessWidget {
     required this.reminder,
     required this.today,
     required this.onToggle,
+    required this.onEdit,
   });
 
   final Reminder reminder;
   final DateTime today;
   final VoidCallback onToggle;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
     final overdue = isOverdue(reminder, today);
-    return Container(
-      padding: AppSpace.padCard,
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border.all(color: AppColors.borderCard),
-        borderRadius: BorderRadius.circular(AppRadii.card),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          _Checkbox(
-            key: ValueKey('toggle-${reminder.id}'),
-            done: reminder.isDone,
-            onTap: onToggle,
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  reminder.title,
-                  style: TextStyle(
-                    fontSize: 15.5,
-                    fontWeight: FontWeight.w500,
-                    color: reminder.isDone ? AppColors.disabled : AppColors.ink,
-                    decoration:
-                        reminder.isDone ? TextDecoration.lineThrough : null,
-                  ),
-                ),
-                if (reminder.description.isNotEmpty) ...[
-                  const SizedBox(height: 5),
+    // The whole card opens the edit sheet; the checkbox swallows its own tap.
+    return InkWell(
+      key: ValueKey('card-${reminder.id}'),
+      onTap: onEdit,
+      borderRadius: BorderRadius.circular(AppRadii.card),
+      child: Container(
+        padding: AppSpace.padCard,
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          border: Border.all(color: AppColors.borderCard),
+          borderRadius: BorderRadius.circular(AppRadii.card),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _Checkbox(
+              key: ValueKey('toggle-${reminder.id}'),
+              done: reminder.isDone,
+              onTap: onToggle,
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Text(
-                    reminder.description,
-                    style: const TextStyle(
-                      fontSize: 13.8,
-                      color: AppColors.bodyMuted,
+                    reminder.title,
+                    style: TextStyle(
+                      fontSize: 15.5,
+                      fontWeight: FontWeight.w500,
+                      color: reminder.isDone
+                          ? AppColors.disabled
+                          : AppColors.ink,
+                      decoration: reminder.isDone
+                          ? TextDecoration.lineThrough
+                          : null,
                     ),
                   ),
+                  if (reminder.description.isNotEmpty) ...[
+                    const SizedBox(height: 5),
+                    Text(
+                      reminder.description,
+                      style: const TextStyle(
+                        fontSize: 13.8,
+                        color: AppColors.bodyMuted,
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-          const SizedBox(width: 10),
-          _DatePill(label: dateLabel(reminder, today), overdue: overdue),
-        ],
+            const SizedBox(width: 10),
+            _DatePill(label: dateLabel(reminder, today), overdue: overdue),
+          ],
+        ),
       ),
     );
   }
@@ -510,15 +546,13 @@ class _Checkbox extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: done ? AppColors.success : Colors.transparent,
-            border:
-                done
-                    ? null
-                    : Border.all(color: AppColors.borderHoverStrong, width: 1.6),
+            border: done
+                ? null
+                : Border.all(color: AppColors.borderHoverStrong, width: 1.6),
           ),
-          child:
-              done
-                  ? const Icon(Icons.check, size: 14, color: AppColors.surface)
-                  : null,
+          child: done
+              ? const Icon(Icons.check, size: 14, color: AppColors.surface)
+              : null,
         ),
       ),
     );

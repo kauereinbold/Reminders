@@ -92,6 +92,10 @@ String dateLabel(Reminder reminder, DateTime today) {
   return '${_months[date.month - 1]} ${date.day}';
 }
 
+/// Sheet date field, e.g. "Sep 14, 2026".
+String fullDateLabel(DateTime date) =>
+    '${_months[date.month - 1]} ${date.day}, ${date.year}';
+
 /// Header date, e.g. "Fri, Sep 5".
 String shortDateLabel(DateTime today) =>
     '${_weekdays[today.weekday - 1]}, ${_months[today.month - 1]} ${today.day}';
@@ -126,8 +130,8 @@ ReminderGroupName? _groupFor(ReminderView view) => switch (view) {
 
 /// Groups in section order, sorted by due date, dropping empty groups.
 List<ReminderGroup> groupReminders(List<Reminder> reminders, DateTime today) {
-  final sorted =
-      reminders.toList()..sort((a, b) => a.limitDate.compareTo(b.limitDate));
+  final sorted = reminders.toList()
+    ..sort((a, b) => a.limitDate.compareTo(b.limitDate));
   return ReminderGroupName.values
       .map(
         (name) => ReminderGroup(
@@ -141,12 +145,12 @@ List<ReminderGroup> groupReminders(List<Reminder> reminders, DateTime today) {
 
 Map<ReminderView, int> viewCounts(List<Reminder> reminders, DateTime today) => {
   ReminderView.all: reminders.length,
-  ReminderView.today:
-      reminders.where((r) => bucketOf(r, today) == ReminderGroupName.today).length,
-  ReminderView.upcoming:
-      reminders
-          .where((r) => bucketOf(r, today) == ReminderGroupName.upcoming)
-          .length,
+  ReminderView.today: reminders
+      .where((r) => bucketOf(r, today) == ReminderGroupName.today)
+      .length,
+  ReminderView.upcoming: reminders
+      .where((r) => bucketOf(r, today) == ReminderGroupName.upcoming)
+      .length,
   ReminderView.done: reminders.where((r) => r.isDone).length,
 };
 
@@ -157,10 +161,9 @@ WeekProgress weekProgress(List<Reminder> reminders, DateTime today) {
   final done = week.where((r) => r.isDone).length;
   final percent = week.isEmpty ? 0 : (done * 100 / week.length).round();
   final overdue = reminders.where((r) => isOverdue(r, today)).length;
-  final caption =
-      overdue > 0
-          ? '$overdue ${overdue == 1 ? 'reminder is' : 'reminders are'} overdue'
-          : '$done of ${week.length} done in the next 7 days';
+  final caption = overdue > 0
+      ? '$overdue ${overdue == 1 ? 'reminder is' : 'reminders are'} overdue'
+      : '$done of ${week.length} done in the next 7 days';
   return WeekProgress(percent, caption);
 }
 
