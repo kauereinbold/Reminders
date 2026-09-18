@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import RemindersList from './page';
 import {
   mockCreateMutateAsync,
@@ -44,24 +50,29 @@ describe('RemindersList', () => {
   it('renders sidebar nav with counts and week progress', () => {
     render(<RemindersList />);
 
+    // The mobile chips mirror the nav labels, so scope to the sidebar.
+    const sidebar = within(screen.getByRole('complementary'));
+
     // 2 reminders total, 1 done, both past dates: 1 overdue.
-    const allNav = screen.getByRole('button', { name: 'All 2' });
+    const allNav = sidebar.getByRole('button', { name: 'All 2' });
     expect(allNav).toHaveAttribute('aria-current', 'true');
-    expect(screen.getByRole('button', { name: 'Done 1' })).toBeInTheDocument();
-    expect(screen.getByText('This week')).toBeInTheDocument();
-    expect(screen.getByText('50%')).toBeInTheDocument();
-    expect(screen.getByText('1 reminder is overdue')).toBeInTheDocument();
+    expect(sidebar.getByRole('button', { name: 'Done 1' })).toBeInTheDocument();
+    expect(sidebar.getByText('This week')).toBeInTheDocument();
+    expect(sidebar.getByText('50%')).toBeInTheDocument();
+    expect(sidebar.getByText('1 reminder is overdue')).toBeInTheDocument();
   });
 
   it('moves the active state when a view is selected', () => {
     render(<RemindersList />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Upcoming 0' }));
+    const sidebar = within(screen.getByRole('complementary'));
+
+    fireEvent.click(sidebar.getByRole('button', { name: 'Upcoming 0' }));
 
     expect(
-      screen.getByRole('button', { name: 'Upcoming 0' }),
+      sidebar.getByRole('button', { name: 'Upcoming 0' }),
     ).toHaveAttribute('aria-current', 'true');
-    expect(screen.getByRole('button', { name: 'All 2' })).not.toHaveAttribute(
+    expect(sidebar.getByRole('button', { name: 'All 2' })).not.toHaveAttribute(
       'aria-current',
     );
   });
@@ -69,7 +80,9 @@ describe('RemindersList', () => {
   it('filters the list by the selected view', () => {
     render(<RemindersList />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Done 1' }));
+    const sidebar = within(screen.getByRole('complementary'));
+
+    fireEvent.click(sidebar.getByRole('button', { name: 'Done 1' }));
 
     expect(screen.getByText('Test Title 1')).toBeInTheDocument();
     expect(screen.queryByText('Test Title 2')).not.toBeInTheDocument();
@@ -78,7 +91,35 @@ describe('RemindersList', () => {
     ).not.toBeInTheDocument();
 
     // Sidebar counts stay unfiltered.
-    expect(screen.getByRole('button', { name: 'All 2' })).toBeInTheDocument();
+    expect(sidebar.getByRole('button', { name: 'All 2' })).toBeInTheDocument();
+  });
+
+  it('renders mobile chips mirroring the nav and filters from them', () => {
+    render(<RemindersList />);
+
+    // Chips live inside the sticky header (banner role).
+    const header = within(screen.getByRole('banner'));
+
+    const allChip = header.getByRole('button', { name: 'All 2' });
+    expect(allChip).toHaveAttribute('aria-current', 'true');
+
+    fireEvent.click(header.getByRole('button', { name: 'Done 1' }));
+
+    expect(
+      header.getByRole('button', { name: 'Done 1' }),
+    ).toHaveAttribute('aria-current', 'true');
+    expect(screen.getByText('Test Title 1')).toBeInTheDocument();
+    expect(screen.queryByText('Test Title 2')).not.toBeInTheDocument();
+  });
+
+  it('opens the create sheet from the mobile FAB', () => {
+    render(<RemindersList />);
+
+    fireEvent.click(screen.getByLabelText('New reminder'));
+
+    expect(
+      screen.getByRole('dialog', { name: 'New reminder' }),
+    ).toBeInTheDocument();
   });
 
   it('filters the list by search query on title and description', () => {

@@ -10,9 +10,14 @@ describe('Reminder Modal', () => {
     it('should open a blank draft due tomorrow', { tags: '@modal' }, () => {
       cy.openCreateSheet()
 
+      // The draft defaults to the local tomorrow, so build the expected value
+      // in local time: toISOString shifts the day in negative UTC offsets.
       const tomorrow = new Date()
       tomorrow.setDate(tomorrow.getDate() + 1)
-      const expected = tomorrow.toISOString().slice(0, 10)
+      const pad = n => String(n).padStart(2, '0')
+      const expected = `${tomorrow.getFullYear()}-${pad(
+        tomorrow.getMonth() + 1
+      )}-${pad(tomorrow.getDate())}`
 
       cy.get('[role="dialog"]').within(() => {
         cy.contains('New reminder').should('be.visible')
