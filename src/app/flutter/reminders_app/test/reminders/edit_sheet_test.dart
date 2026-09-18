@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -24,7 +25,7 @@ final upcoming = {
 Future<List<http.Request>> pumpScreen(
   WidgetTester tester, {
   List<Map<String, dynamic>> items = const [],
-  http.Response Function(http.Request)? onWrite,
+  FutureOr<http.Response> Function(http.Request)? onWrite,
 }) async {
   final requests = <http.Request>[];
   final api = RemindersApi(
@@ -196,6 +197,70 @@ void main() {
 
     expect(find.text('New reminder'), findsOneWidget);
     expect(find.text('Title is required.'), findsOneWidget);
+  });
+
+  testWidgets('a server error lands on the sheet banner', (tester) async {
+    await pumpScreen(
+      tester,
+      onWrite: (_) =>
+          http.Response(jsonEncode({'message': 'Database is down'}), 500),
+    );
+    await openCreateSheet(tester);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('sheet-title')),
+      'Dentist',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('sheet-save')));
+    await tester.pumpAndSettle();
+
+    // Not a field error: it goes to the banner and the draft survives.
+    expect(find.text('New reminder'), findsOneWidget);
+    expect(find.text('Database is down'), findsOneWidget);
+    expect(find.text('Dentist'), findsOneWidget);
+  });
+
+  testWidgets('the sheet cannot be dismissed while a save is in flight', (
+    tester,
+  ) async {
+    // Dismissing mid-save would pop the route and drop the result, leaving
+    // the list stale. The barrier tap and the drag are both refused here.
+    final post = Completer<http.Response>();
+    await pumpScreen(
+      tester,
+      onWrite: (request) => post.future,
+    );
+    await openCreateSheet(tester);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('sheet-title')),
+      'Dentist',
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('sheet-save')));
+    await tester.pump();
+
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pump();
+    expect(find.text('New reminder'), findsOneWidget);
+
+    await tester.fling(
+      find.text('New reminder'),
+      const Offset(0, 400),
+      1200,
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('New reminder'), findsOneWidget);
+
+    post.complete(
+      http.Response(jsonEncode({...upcoming, 'id': '9', 'title': 'Dentist'}), 201),
+    );
+    await tester.pumpAndSettle();
+
+    // The save survived the dismissal attempts and reached the list.
+    expect(find.text('New reminder'), findsNothing);
+    expect(find.text('Dentist'), findsOneWidget);
   });
 
   testWidgets('delete asks for confirmation and Keep it backs out', (

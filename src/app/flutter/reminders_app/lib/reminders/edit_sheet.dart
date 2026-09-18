@@ -163,6 +163,21 @@ class _ReminderSheetState extends State<ReminderSheet> {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final canSave = _title.text.trim().isNotEmpty && !_busy;
+    // The sheet owns the in-flight write, so it has to outlive it: dismissing
+    // it mid-save would pop the route and drop the result on !mounted, leaving
+    // the list stale. PopScope covers the back gesture and the barrier tap;
+    // the drag-to-dismiss recognizer lives above us and pops directly, so a
+    // vertical drag of our own takes the gesture from it while busy.
+    return PopScope(
+      canPop: !_busy,
+      child: GestureDetector(
+        onVerticalDragStart: _busy ? (_) {} : null,
+        child: _form(context, text, canSave),
+      ),
+    );
+  }
+
+  Widget _form(BuildContext context, TextTheme text, bool canSave) {
     return Padding(
       // Keep the footer above the keyboard while typing.
       padding: EdgeInsets.only(
