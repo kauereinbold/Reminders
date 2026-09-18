@@ -1,5 +1,5 @@
 # Triggers on PR when .NET code changes (API, MVC, or tests)
-# Validates build and runs unit tests with coverage
+# Validates build, runs unit tests with coverage and the integration suite
 name: dotnet - build - pull request
 
 on:
@@ -41,3 +41,8 @@ jobs:
 
     - name: Test
       run: dotnet test -c Release ./src/test/server/dotnet/Reminders.Application.Test '/p:CollectCoverage=true' '/p:CoverletOutput=TestResults/' '/p:CoverletOutputFormat=lcov' '/p:Exclude="[Reminders.Infrastructure.CrossCutting]*,[Reminders.Infrastructure.Data.EntityFramework]*"' '/p:ExcludeByFile="**/*.Designer.cs,**/*Entity.cs"'
+
+    # Hosts the API in-process against a throwaway Postgres container started by
+    # Testcontainers, using the Docker daemon already present on the runner.
+    - name: Integration test
+      run: dotnet test -c Release ./src/test/server/dotnet/Reminders.Api.Test

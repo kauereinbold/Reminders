@@ -314,14 +314,12 @@ public async Task AddRangeAsync(IEnumerable<Reminder> reminders)
 ### .NET API Tests
 
 ```bash
-# Start dependencies
-docker compose --profile api up postgres ganache -d
+# Unit tests
+dotnet test src/test/server/dotnet/Reminders.Application.Test/
 
-# Run API
-cd src/server/api/dotnet/Reminders.Api && dotnet run &
-
-# Run tests
-cd src/test/server/dotnet/Reminders.Api.Test && dotnet test
+# Integration tests: host the API in-process and start their own Postgres
+# container via Testcontainers, so only a running Docker daemon is needed
+dotnet test src/test/server/dotnet/Reminders.Api.Test/
 ```
 
 ### React Tests
