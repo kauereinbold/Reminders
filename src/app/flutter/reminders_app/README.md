@@ -29,8 +29,10 @@ upgrading Flutter, bump `flutter-version` in the workflow and regenerate
   `:9999`). Base URL via `--dart-define=API_BASE_URL=...`; default
   `http://10.0.2.2:9999` reaches the host from the Android emulator.
 - `lib/reminders/`: `grouping.dart` (bucketing, filtering, week progress,
-  mirroring the React `reminderGroups.ts` rules) and `list_screen.dart` (the
-  mobile list: search, filter chips, progress strip, grouped cards, FAB).
+  mirroring the React `reminderGroups.ts` rules), `list_screen.dart` (the
+  mobile list: search, filter chips, progress strip, grouped cards, FAB),
+  `edit_sheet.dart` (create/edit bottom sheet with the status toggle) and
+  `delete_dialog.dart` (delete confirmation).
 - `lib/main.dart`: app entry.
 
 ## Test on a phone (LAN install)

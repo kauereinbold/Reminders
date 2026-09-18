@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -53,7 +54,10 @@ Future<void> pumpScreen(
     baseUrl: 'http://localhost:9999',
   );
   await tester.pumpWidget(
-    MaterialApp(theme: buildAppTheme(), home: RemindersListScreen(api: api)),
+    MaterialApp(
+      theme: buildAppTheme(),
+      home: RemindersListScreen(api: api),
+    ),
   );
   await tester.pumpAndSettle();
 }
@@ -123,10 +127,7 @@ void main() {
       if (request.method == 'GET') {
         return http.Response(jsonEncode([overdue]), 200);
       }
-      return http.Response(
-        jsonEncode({...overdue, 'isDone': true}),
-        200,
-      );
+      return http.Response(jsonEncode({...overdue, 'isDone': true}), 200);
     });
 
     expect(find.text('Overdue'), findsOneWidget);
@@ -138,6 +139,29 @@ void main() {
     expect(jsonDecode(requests.last.body)['isDone'], true);
     expect(find.text('Overdue'), findsNothing);
     expect(find.text('Done'), findsWidgets);
+  });
+
+  testWidgets('a failed toggle reverts the card and shows the error', (
+    tester,
+  ) async {
+    // The PUT is held open so the optimistic state is observable first.
+    final put = Completer<http.Response>();
+    await pumpScreen(tester, (request) async {
+      if (request.method == 'GET') {
+        return http.Response(jsonEncode([overdue]), 200);
+      }
+      return put.future;
+    });
+
+    await tester.tap(find.byKey(const ValueKey('toggle-1')));
+    await tester.pump();
+    expect(find.text('Overdue'), findsNothing);
+
+    put.complete(http.Response(jsonEncode({'message': 'Boom'}), 500));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Overdue'), findsOneWidget);
+    expect(find.text('Boom'), findsOneWidget);
   });
 
   testWidgets('surfaces API errors with a retry', (tester) async {
@@ -159,12 +183,17 @@ void main() {
     expect(find.text('Call the notary'), findsOneWidget);
   });
 
-  testWidgets('surfaces a malformed payload instead of hanging', (tester) async {
+  testWidgets('surfaces a malformed payload instead of hanging', (
+    tester,
+  ) async {
     await pumpScreen(
       tester,
-      (_) async => http.Response(jsonEncode([
-        {'id': '1', 'title': 'Broken', 'description': '', 'isDone': false},
-      ]), 200),
+      (_) async => http.Response(
+        jsonEncode([
+          {'id': '1', 'title': 'Broken', 'description': '', 'isDone': false},
+        ]),
+        200,
+      ),
     );
 
     expect(find.byType(CircularProgressIndicator), findsNothing);
