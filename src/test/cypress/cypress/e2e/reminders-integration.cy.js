@@ -230,15 +230,18 @@ describe('Reminders Integration Tests', () => {
       cy.viewport(375, 667) // iPhone SE dimensions
       
       cy.visit('/')
-      cy.waitForAppReady()
+      // Under 760px the desktop New reminder button gives way to the FAB, so
+      // waitForAppReady (which waits on that button) cannot be used here.
+      cy.get('main', { timeout: 15000 }).should('be.visible')
       cy.wait('@getReminders')
-      
+
       // Verify elements are still accessible
-      cy.get('button').contains('New reminder').should('be.visible')
+      cy.get('button[aria-label="New reminder"]').should('be.visible')
       cy.get('article').should('have.length', 3)
-      
+
       // The create modal is reachable on mobile too
-      cy.openCreateSheet()
+      cy.get('button[aria-label="New reminder"]').click()
+      cy.get('[role="dialog"]').should('be.visible')
       cy.get('button').contains('Cancel').click()
       cy.get('[role="dialog"]').should('not.exist')
     })

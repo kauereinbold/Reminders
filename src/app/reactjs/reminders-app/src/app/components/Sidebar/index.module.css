@@ -113,3 +113,10 @@
   color: var(--body-muted);
   line-height: 1.5;
 }
+
+/* <760px the AppHeader chips and progress strip take over (single column) */
+@media (max-width: 759.98px) {
+  .sidebar {
+    display: none;
+  }
+}

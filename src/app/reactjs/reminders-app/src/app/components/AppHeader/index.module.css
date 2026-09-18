@@ -92,3 +92,179 @@
 .createButton:hover {
   background: var(--accent);
 }
+
+/* Mobile-only shell (<760px): short date, filter chips, progress strip, FAB.
+   Hidden on desktop; the media query below swaps them in. */
+
+.dateShort {
+  display: none;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--faint);
+  margin-left: auto;
+}
+
+.chips {
+  display: none;
+  gap: 7px;
+  overflow-x: auto;
+  margin: 0 -18px;
+  padding: 2px 18px 4px;
+  scrollbar-width: none;
+}
+
+.chip,
+.chipActive {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: none;
+  border-radius: var(--radius-pill);
+  padding: 9px 15px;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  min-height: 40px;
+  white-space: nowrap;
+}
+
+.chip {
+  background: var(--surface);
+  color: var(--nav-ink-soft);
+  border: 1px solid var(--border-page);
+}
+
+.chip:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.chipActive {
+  background: var(--ink);
+  color: var(--input-fill);
+  border: none;
+  font-weight: 500;
+}
+
+.chipCount {
+  font-size: 12.5px;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.chipActive .chipCount {
+  color: inherit;
+  opacity: 0.65;
+}
+
+.progressStrip {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border-page);
+}
+
+.progressPct {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1;
+  flex: none;
+}
+
+.progressTrack {
+  flex: 1;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  /* Prototype's darker track for the panel background */
+  background: #dfd8c8;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: var(--radius-pill);
+}
+
+.progressCaption {
+  font-size: 12.5px;
+  color: var(--body-muted);
+  flex: none;
+  max-width: 44%;
+  text-align: right;
+  line-height: 1.35;
+}
+
+.fab {
+  display: none;
+  position: fixed;
+  right: 18px;
+  bottom: 22px;
+  z-index: 20;
+  align-items: center;
+  gap: 9px;
+  background: var(--ink);
+  color: var(--input-fill);
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 15px 22px;
+  font-size: 15px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  min-height: 52px;
+  box-shadow: 0 10px 26px rgba(27, 26, 23, 0.28);
+}
+
+.fab:active {
+  background: var(--accent);
+}
+
+@media (max-width: 759.98px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 16px 18px 12px;
+  }
+
+  .titleGroup {
+    gap: 9px;
+    margin-right: 0;
+  }
+
+  .title {
+    font-size: 25px;
+  }
+
+  .date {
+    display: none;
+  }
+
+  .dateShort {
+    display: block;
+  }
+
+  .searchPill {
+    flex: none;
+    min-width: 0;
+    padding: 10px 15px;
+  }
+
+  .searchInput {
+    font-size: 15px;
+  }
+
+  .createButton {
+    display: none;
+  }
+
+  .chips,
+  .progressStrip,
+  .fab {
+    display: flex;
+  }
+}

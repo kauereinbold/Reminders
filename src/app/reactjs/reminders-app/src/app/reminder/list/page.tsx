@@ -58,6 +58,8 @@ export default function RemindersList() {
 
   const items = reminders ?? [];
   const groups = groupReminders(filterReminders(items, view, query));
+  const counts = viewCounts(items);
+  const progress = weekProgress(items);
 
   const refresh = () =>
     queryClient.invalidateQueries({ queryKey: REMINDERS_QUERY_KEY });
@@ -151,14 +153,18 @@ export default function RemindersList() {
         query={query}
         onQueryChange={setQuery}
         onCreate={handleCreateClick}
+        view={view}
+        counts={counts}
+        onSelectView={setView}
+        progress={progress}
       />
 
       <div className={styles.body}>
         <Sidebar
           view={view}
-          counts={viewCounts(items)}
+          counts={counts}
           onSelectView={setView}
-          progress={weekProgress(items)}
+          progress={progress}
         />
 
         <main className={styles.list} ref={listRef} tabIndex={-1}>
