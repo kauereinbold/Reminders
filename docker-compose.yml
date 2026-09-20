@@ -87,6 +87,23 @@ services:
       - all
     deploy: *shared-deploy
 
+  mcp-server:
+    image: reminders-mcp-server
+    container_name: reminders-mcp-server
+    build:
+      context: src/server/services/nodejs/reminders-mcp-server
+    # No depends_on: the api profile brings up nginx, and this service holds no
+    # state, so it can start in any order. Run it as: --profile api --profile mcp
+    environment:
+      API_BASE_URL: ${API_BASE_URL:-http://reminders-nginx:9999}
+      MCP_TRANSPORT: ${MCP_TRANSPORT:-http}
+      MCP_PORT: ${MCP_PORT:-9998}
+    profiles:
+      - mcp
+    deploy: *shared-deploy
+    ports:
+      - "${MCP_PORT:-9998}:${MCP_PORT:-9998}"
+
   # Database
 
   postgres:

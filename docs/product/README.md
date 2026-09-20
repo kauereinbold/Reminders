@@ -6,6 +6,7 @@ Product intent and outcomes are recorded here so features trace from idea to val
 
 | PRD | Title | Status | Date |
 |---|---|---|---|
+| [0001](0001-mcp-server.md) | MCP server for the Reminders API | active | 2026-09-20 |
 
 ## Process
 
