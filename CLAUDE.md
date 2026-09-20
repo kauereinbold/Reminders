@@ -31,8 +31,9 @@ Five dimensions. Every issue gets exactly one type label; add scope/initiative/s
 [Project 7](https://github.com/users/kauereinbold/projects/7) is the execution view of the backlog (see ADR-0002). Columns: Backlog, Todo, In Progress, Done. Extra fields: Priority (P0/P1/P2), Initiative (audit/redesign/learning).
 
 - When claiming an issue, move its board item to In Progress.
-- New issues are auto-added to the board; set Priority and Initiative when triaging.
-- Closed issues move to Done automatically; do not set Done by hand.
+- The board's built-in automation is unreliable: issues created with `gh issue create` often never reach the board, and closed issues often stay in their old column. Treat both as manual steps.
+- After creating an issue, check it has a board item and add it if it does not; then set Priority and Initiative.
+- After closing an issue or merging its pull request, set its board item to Done and read the item back to confirm.
 - Todo means prioritized and ready to start; Backlog means not yet prioritized.
 
 ### Sprints and check-in ritual
@@ -103,6 +104,7 @@ All commits and PR titles follow [Conventional Commits](https://www.conventional
 - `mvc`: ASP.NET MVC app
 - `flutter`: Flutter app (`src/app/flutter/reminders_app/`)
 - `blockchain`: Solidity/Hardhat
+- `mcp`: MCP server (`src/server/services/nodejs/reminders-mcp-server/`)
 - `migrations`: MigrationsRunner / EF migrations
 - `infra`: Docker, Nginx, k6
 - `ci`: GitHub Actions
