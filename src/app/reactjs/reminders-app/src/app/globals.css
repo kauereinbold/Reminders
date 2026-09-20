@@ -24,6 +24,8 @@
   --nav-active-bg: #e7e2d6;
   --nav-hover-bg: #ebe7dc;
   --nav-ink-soft: #55503f;
+  --empty-fill: #f8f6f1;
+  --border-dashed: #d5cebe;
 
   /* Type */
   --font-display: var(--font-instrument-serif), serif;

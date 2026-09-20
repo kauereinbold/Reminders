@@ -18,16 +18,12 @@
     "metrics:all": "npm run metrics && npm run metrics:duplicates && npm run metrics:dependencies && npm run metrics:loc"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.3",
-    "@emotion/styled": "^11.11.0",
-    "@mui/material": "^7.1.2",
     "@tanstack/react-query": "^5.81.5",
     "babel-eslint": "^10.1.0",
     "glob": "^13.0.0",
     "next": "^15.5.24",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "use-context-selector": "^2.0.0"
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^16.1.4",

@@ -183,9 +183,9 @@ builder.Services.RegisterApplicationServices(
 
 Uses **Next.js App Router** with:
 - Server components by default (`async function Page()`)
-- Client components marked with `'use client'` ([edit-client.tsx](../src/app/reactjs/reminders-app/src/app/reminder/[id]/edit-client.tsx))
+- Client components marked with `'use client'` ([reminder/list/page.tsx](../src/app/reactjs/reminders-app/src/app/reminder/list/page.tsx))
 - `@tanstack/react-query` for data fetching
-- Material-UI v7 components
+- CSS modules over the design tokens in `src/app/globals.css`
 - `@/app` path alias for imports
 
 ### Environment Variables

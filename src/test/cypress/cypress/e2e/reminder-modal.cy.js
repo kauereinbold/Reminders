@@ -179,6 +179,31 @@ describe('Reminder Modal', () => {
       cy.get('article').should('have.length', 3)
     })
 
+    it('should expose the confirmation as a labelled modal dialog', { tags: '@modal' }, () => {
+      cy.openEditSheet('Test Reminder 1')
+      cy.get('button').contains('Delete reminder').click()
+
+      cy.contains('[role="dialog"]', 'Delete this reminder?')
+        .should('have.attr', 'aria-modal', 'true')
+        .and('have.attr', 'aria-label', 'Delete this reminder?')
+    })
+
+    it('should keep the sheet open when the delete request fails', { tags: '@modal' }, () => {
+      cy.intercept('DELETE', '**/api/reminders/*', {
+        statusCode: 500,
+        body: { title: 'Failed to delete reminder' }
+      }).as('deleteReminderError')
+
+      cy.openEditSheet('Test Reminder 1')
+      cy.get('button').contains('Delete reminder').click()
+      cy.get('[data-testid="delete-button"]').click()
+      cy.wait('@deleteReminderError')
+
+      cy.contains('Delete this reminder?').should('not.exist')
+      cy.contains('Edit reminder').should('be.visible')
+      cy.contains('Failed to delete reminder').should('be.visible')
+    })
+
     it('should close only the confirmation on Escape', { tags: '@modal' }, () => {
       cy.openEditSheet('Test Reminder 1')
       cy.get('button').contains('Delete reminder').click()

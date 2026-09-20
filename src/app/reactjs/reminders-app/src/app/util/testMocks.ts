@@ -1,5 +1,3 @@
-import { ReminderActionStatus } from '../hooks';
-
 const mockReminder = {
   id: 1,
   title: 'Test Title 1',
@@ -35,20 +33,9 @@ const mockQueryClient = {
 };
 
 const jestObjectsMock = {
-  'next/navigation': {
-    useRouter: jest.fn().mockReturnValue({
-      push: jest.fn(),
-    }),
-    useSearchParams: jest.fn().mockImplementation(
-      () => new URLSearchParams({ id: String(mockReminder.id) }),
-    ),
-  },
   '@/app/api': {
     useReminders: jest.fn().mockImplementation(() => ({
       data: mockReminders,
-    })),
-    useReminder: jest.fn().mockImplementation(() => ({
-      data: mockReminder,
     })),
     REMINDERS_QUERY_KEY: ['reminders'],
     useUpdateReminder: jest.fn().mockReturnValue({
@@ -63,37 +50,13 @@ const jestObjectsMock = {
     createReminder: jest.fn(),
     deleteReminder: jest.fn(),
     updateReminder: jest.fn(),
-    useReminderActions: jest.fn().mockReturnValue({
-      createReminder: { mutateAsync: jest.fn() },
-      updateReminder: { mutateAsync: jest.fn() },
-      deleteReminder: { mutateAsync: jest.fn() },
-    }),
   },
   '@/app/hooks': {
-    useRemindersClearContext: jest.fn().mockReturnValue(jest.fn),
     useRemindersQueryClient: jest.fn().mockReturnValue(mockQueryClient),
-    useRemindersContext: jest.fn().mockReturnValue({
-      reminder: mockReminder,
-      errors: {},
-      dispatch: jest.fn(),
-      onCreateReminder: jest
-        .fn()
-        .mockImplementation(() => ReminderActionStatus.Success),
-      onUpdateReminder: jest
-        .fn()
-        .mockImplementation(() => ReminderActionStatus.Success),
-      onDeleteReminder: jest
-        .fn()
-        .mockImplementation(() => ReminderActionStatus.Success),
-    }),
-    useMutation: jest.fn(),
-    useQuery: jest.fn(),
-    ReminderActionStatus: ReminderActionStatus,
   },
 };
 
 const jestFunctionsMock = {
-  'next/navigation': () => jestObjectsMock['next/navigation'],
   '@/app/api': () => jestObjectsMock['@/app/api'],
   '@/app/hooks': () => jestObjectsMock['@/app/hooks'],
 };

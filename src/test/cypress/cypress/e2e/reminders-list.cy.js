@@ -93,6 +93,48 @@ describe('Reminders List', () => {
     cy.get('article').should('have.length', 3)
   })
 
+  it('should show the search empty state when nothing matches', { tags: '@list' }, () => {
+    cy.wait('@getReminders')
+
+    cy.get('input[placeholder="Search reminders"]').type('zzz')
+
+    cy.get('[data-testid="empty-state"]').within(() => {
+      cy.contains('No matches').should('be.visible')
+      cy.contains('No reminder matches "zzz".').should('be.visible')
+    })
+
+    cy.get('input[placeholder="Search reminders"]').clear()
+    cy.get('[data-testid="empty-state"]').should('not.exist')
+  })
+
+  it('should show the empty state of a view with no reminders', { tags: '@list' }, () => {
+    cy.wait('@getReminders')
+
+    // Every fixture date is in the past, so Today and Upcoming are empty.
+    cy.contains('aside nav button', 'Upcoming').click()
+    cy.contains('Nothing scheduled').should('be.visible')
+
+    cy.contains('aside nav button', 'Today').click()
+    cy.contains('Today is clear').should('be.visible')
+
+    // The empty state offers the same create action as the header.
+    cy.get('[data-testid="empty-state"]').contains('Add a reminder').click()
+    cy.get('[role="dialog"]').should('be.visible').and('contain', 'New reminder')
+  })
+
+  it('should show the All empty state when there are no reminders', { tags: '@list' }, () => {
+    cy.intercept('GET', '**/api/reminders', { fixture: 'empty-reminders.json' }).as('getNoReminders')
+
+    cy.visit('/')
+    cy.wait('@getNoReminders')
+
+    cy.get('[data-testid="empty-state"]').within(() => {
+      cy.contains('Nothing on the list').should('be.visible')
+      cy.contains('Add a reminder').should('be.visible')
+    })
+    cy.get('article').should('have.length', 0)
+  })
+
   it('should handle loading state', { tags: '@list' }, () => {
     // Intercept with a delay to test loading state
     cy.intercept('GET', '**/api/reminders', {

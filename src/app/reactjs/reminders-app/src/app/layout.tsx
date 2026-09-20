@@ -1,6 +1,5 @@
 import './globals.css'
 
-import { Suspense } from 'react'
 import { DM_Sans, Instrument_Serif } from 'next/font/google'
 import type { Metadata } from 'next/types'
 
@@ -16,7 +15,7 @@ const dmSans = DM_Sans({
   variable: '--font-dm-sans',
 })
 
-import { ReminderQueryProvider, RemindersContextProvider } from './hooks'
+import { ReminderQueryProvider } from './hooks'
 
 export const metadata: Metadata = {
   title: 'Reminders App',
@@ -31,14 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${instrumentSerif.variable} ${dmSans.variable}`}>
       <body suppressHydrationWarning={true}>
-        <ReminderQueryProvider>
-          {/* Suspense required: RemindersContextProvider reads useSearchParams */}
-          <Suspense>
-            <RemindersContextProvider>
-              {children}
-            </RemindersContextProvider>
-          </Suspense>
-        </ReminderQueryProvider>
+        <ReminderQueryProvider>{children}</ReminderQueryProvider>
       </body>
     </html>
   )

@@ -13,6 +13,7 @@ import {
 } from '@/app/api';
 import {
   AppHeader,
+  EmptyState,
   ReminderCard,
   ReminderDeleteModal,
   ReminderSheet,
@@ -168,6 +169,14 @@ export default function RemindersList() {
         />
 
         <main className={styles.list} ref={listRef} tabIndex={-1}>
+          {groups.length === 0 && (
+            <EmptyState
+              view={view}
+              query={query}
+              onCreate={handleCreateClick}
+            />
+          )}
+
           {groups.map(group => (
             <section key={group.label} className={styles.section}>
               <div className={styles.sectionHeader}>
