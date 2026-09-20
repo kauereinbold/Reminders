@@ -39,6 +39,7 @@ docker compose logs -f dotnet-api go-api migrations
 - **API (Go)**: `src/server/api/go/reminders-api/`
 - **API (C++)**: `src/server/api/cpp/reminders-api/`
 - **Migration Runner**: `src/server/services/dotnet/Reminders.MigrationsRunner/`
+- **MCP Server**: `src/server/services/nodejs/reminders-mcp-server/` (see its README)
 - **React Frontend**: `src/app/reactjs/reminders-app/`
 - **Flutter App**: `src/app/flutter/reminders_app/` (Android only; see its README)
 - **Smart Contracts**: `blockchain/contracts/Reminders.sol`
@@ -249,6 +250,7 @@ docker compose --profile production -f docker-compose.yml -f docker-compose.prod
 - `api` - Backend only
 - `debug` - Development with debugger support
 - `production` - Optimized builds
+- `mcp` - MCP server for AI assistants, run alongside `api`: `docker compose --profile api --profile mcp up -d`
 
 ## Common Agent Tasks
 
