@@ -21,6 +21,20 @@ it directly.
 Do one complete pass over the whole checklist below. Do not spread findings
 across several runs.
 
+## Category sweep
+
+A single pass misses whole classes of defect unless they are enumerated, so
+walk this list explicitly before reporting, on top of the checklist below:
+
+- Dead exports, helpers, or assets left behind by a deletion in the diff.
+- Documentation (README, AGENTS.md, ADRs, PRDs) still referencing symbols,
+  files, routes, or commands the diff removed or renamed.
+- Cypress spec drift: a React UI or API contract change with no matching spec
+  update, or a new user-facing flow with no spec.
+- A schema change with a migration for only one provider (Postgres and
+  SqlServer both need one).
+- A missing ADR for an architecture, workflow, or tooling decision.
+
 ## What to review
 
 - **Correctness**: bugs, unhandled errors, broken contracts between the .NET, Go
@@ -39,7 +53,11 @@ across several runs.
   prefix: `[blocker]` (must fix before merge), `[major]` (likely bug or rule
   violation), `[minor]` (worth fixing, not blocking), `[nit]` (style or taste).
 - Inline comments for `[blocker]` and `[major]` only, where the host supports
-  them. `[minor]` and `[nit]` go in the summary, at most five of them.
+  them. `[minor]` and `[nit]` go in the summary, at most five of them; when
+  more were found, end the summary with a count of the ones left out rather
+  than listing them.
+- Every finding cites evidence as `file:line` (a range for a block). A finding
+  that cannot point at a line is not reported.
 - Exactly one summary comment, grouped by severity. With no findings the whole
   comment is the line `No findings.`
 - Report outcomes, not process. Never list the categories or rules that came
@@ -49,6 +67,25 @@ across several runs.
 - Caveman wording: one line per finding, `file:line: problem. fix.`, no
   throat-clearing, no restating the diff. Full sentences only for a security
   finding or a design disagreement that needs the why.
+
+## Re-reviews
+
+The first review of a pull request is the broad one. On every later run over
+the same pull request:
+
+- Report `[blocker]` and `[major]` findings only, plus whether earlier findings
+  were addressed. Suppress new `[minor]` and `[nit]` findings.
+- Raise a new finding only for code the later pushes changed, or for something
+  the first review got wrong.
+
+## Skip rules
+
+Do not report what something else already enforces or owns:
+
+- Anything CI enforces: linting, formatting, type errors, failing tests. The
+  check is the report.
+- Generated files, lockfiles, and vendored code.
+- Pre-existing code the diff does not touch.
 
 ## Limits
 
