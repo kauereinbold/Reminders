@@ -12,11 +12,12 @@ GitHub Issues holds the backlog (ADR-0001), but with 40+ open issues across audi
 - GitHub Project 7 ("Reminders") is the single execution board for `kauereinbold/Reminders`.
 - Status columns: Backlog (not prioritized), Todo (prioritized, ready), In Progress (claimed), Done (closed).
 - Extra single-select fields: Priority (P0/P1/P2) and Initiative (audit/redesign/learning), mirroring initiative labels.
-- Built-in workflows keep the board current: issues auto-added on open, moved to Done on close, back to Todo on reopen.
-- Agents move their item to In Progress when claiming an issue and set Priority/Initiative when triaging new issues. Done is automated, never set by hand.
+- Built-in project workflows are enabled (auto-add on open, Done on close, Todo on reopen), but they are best effort, not a guarantee: issues opened through the API or `gh issue create` are regularly missed, and closed issues regularly stay in their old column (#332, #233, #439).
+- Board state is therefore maintained by hand and the automation is treated as a convenience: agents move their item to In Progress when claiming an issue, set Priority/Initiative when triaging, and set Done after a close or merge, reading the item back to confirm.
+- The gap is not fixable from this repository: the built-in workflows live in Project 7's settings, which no pull request can change, and an Actions workflow writing to a user-owned Projects v2 board cannot use `GITHUB_TOKEN`. It would need a personal access token with project scope stored as a repository secret, which only the maintainer can create.
 
 ## Consequences
 
 - Easier: at-a-glance execution state for humans and agents; prioritization separate from labels.
-- Harder: one more surface to keep honest; stale In Progress items need periodic sweep.
+- Harder: one more surface to keep honest; stale In Progress items need periodic sweep; board hygiene is manual work at the end of every issue.
 - Watch: board and labels drifting apart on initiative; labels stay the source of truth for taxonomy.
