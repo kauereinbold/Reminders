@@ -1,0 +1,84 @@
+# Unit tests for the MCP server, then the end to end suite against a live stack:
+# a real MCP client over streamable HTTP to the mcp-server container, which
+# calls the APIs through nginx (ADR-0016).
+name: MCP Server
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/server/services/nodejs/reminders-mcp-server/**'
+      - 'docker-compose*.yml'
+      - 'infrastructure/**'
+      - '.github/workflows/mcp-server.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/server/services/nodejs/reminders-mcp-server/**'
+      - 'docker-compose*.yml'
+      - 'infrastructure/**'
+      - '.github/workflows/mcp-server.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: src/server/services/nodejs/reminders-mcp-server
+
+jobs:
+  mcp-server:
+    name: MCP server unit and end to end tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+          cache-dependency-path: src/server/services/nodejs/reminders-mcp-server/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Offline: stub API and in memory transport, no containers needed.
+      - name: Unit tests
+        run: npm test
+
+      - name: Start the api and mcp profiles
+        working-directory: .
+        run: docker compose --profile api --profile mcp up -d --build
+
+      - name: Wait for the MCP server and the load balancer
+        working-directory: .
+        run: |
+          deadline=$((SECONDS + 300))
+          until curl -fsS http://localhost:9998/health >/dev/null 2>&1 \
+            && curl -fsS http://localhost:9999/api/reminders >/dev/null 2>&1; do
+            if [ "$SECONDS" -ge "$deadline" ]; then
+              echo "::error::the stack did not become ready within 300s"
+              exit 1
+            fi
+            sleep 5
+          done
+          echo "mcp server and load balancer ready"
+
+      - name: End to end tests
+        run: npm run test:e2e
+
+      - name: Dump container logs
+        if: failure()
+        working-directory: .
+        run: docker compose --profile api --profile mcp logs --no-color --tail=200
+
+      - name: Tear down
+        if: always()
+        working-directory: .
+        run: docker compose --profile api --profile mcp down -v

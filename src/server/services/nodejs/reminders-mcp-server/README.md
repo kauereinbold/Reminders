@@ -100,5 +100,19 @@ npm test
 ```
 
 Builds, then runs the `node:test` suites against the compiled output: the REST
-client against a stub API, and the tools end to end over an in memory MCP
-transport. No test framework dependency.
+client against a stub API, and the tools over an in memory MCP transport. Fast
+and offline, no containers and no test framework dependency.
+
+The end to end suite is separate and needs a live stack:
+
+```bash
+docker compose --profile api --profile mcp up -d --build
+npm run test:e2e
+docker compose --profile api --profile mcp down
+```
+
+It drives a real MCP client over streamable HTTP against the `mcp-server`
+container, which calls the APIs through nginx: full CRUD plus the 404 and 400
+paths. It deletes what it creates and asserts the reminder list is left as it
+was found. `MCP_URL` overrides the endpoint, default
+`http://localhost:9998/mcp`. CI runs both suites in the MCP Server workflow.
