@@ -102,7 +102,7 @@ services:
       - mcp
     deploy: *shared-deploy
     ports:
-      - "${MCP_PORT:-9998}:9998"
+      - "${MCP_PORT:-9998}:${MCP_PORT:-9998}"
 
   # Database
 
