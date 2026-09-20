@@ -95,7 +95,7 @@ npm test
 npm test -- --coverage
 ```
 
-Tests live alongside the code they cover, e.g. `src/app/components/ReminderForm/index.test.tsx`.
+Tests live alongside the code they cover, e.g. `src/app/components/ReminderSheet/index.test.tsx`.
 
 ## Build
 
@@ -115,10 +115,10 @@ npm run lint
 ```text
 src/app/
 ├── api/            # API client, in-browser mock, hooks, and types
-├── components/     # Reusable UI components (AlertError, ReminderForm, ReminderDeleteModal)
+├── components/     # Reusable UI components (AppHeader, Sidebar, ReminderCard, ReminderSheet, ReminderDeleteModal, EmptyState)
 ├── constants/       # Shared constants
-├── hooks/          # Custom React hooks (context, query client)
-├── reminder/       # Route segments: list, create, edit (App Router)
+├── hooks/          # Custom React hooks (query client, escape key, focus return)
+├── reminder/       # Route segments: list (App Router); create and edit are overlays on it
 ├── services/       # Validation and other client-side services
 └── util/           # Utility helpers
 ```
