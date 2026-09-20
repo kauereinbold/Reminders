@@ -37,7 +37,7 @@ const REQUEST_FAILED: Errors = {
 };
 
 export default function RemindersList() {
-  const { data: reminders } = useReminders();
+  const { data: reminders, isPending } = useReminders();
   const queryClient = useRemindersQueryClient();
   const createReminder = useCreateReminder();
   const updateReminder = useUpdateReminder();
@@ -169,7 +169,10 @@ export default function RemindersList() {
         />
 
         <main className={styles.list} ref={listRef} tabIndex={-1}>
-          {groups.length === 0 && (
+          {/* `items` is empty while the first fetch is in flight, so the
+              empty state waits for it rather than flashing over a list that
+              is about to arrive. */}
+          {!isPending && groups.length === 0 && (
             <EmptyState
               view={view}
               query={query}

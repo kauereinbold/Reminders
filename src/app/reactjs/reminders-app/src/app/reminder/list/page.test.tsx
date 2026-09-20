@@ -149,6 +149,15 @@ describe('RemindersList', () => {
     ).toBeInTheDocument();
   });
 
+  it('holds the empty state back while the first load is pending', () => {
+    const { useReminders } = jest.requireMock('@/app/api');
+    useReminders.mockReturnValueOnce({ data: undefined, isPending: true });
+
+    render(<RemindersList />);
+
+    expect(screen.queryByTestId('empty-state')).not.toBeInTheDocument();
+  });
+
   it('shows the view empty state and creates from it', () => {
     render(<RemindersList />);
 
