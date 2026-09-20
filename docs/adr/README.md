@@ -21,6 +21,7 @@ Decisions that shape architecture, workflow, or tooling are recorded here so hum
 | [0013](0013-in-place-reminder-overlays.md) | In-place overlays for reminder create, edit and delete | accepted | 2026-09-05 |
 | [0014](0014-android-cleartext-policy.md) | Android network security config with a loopback-only cleartext allow-list | accepted | 2026-09-05 |
 | [0015](0015-testcontainers-integration-tests.md) | Integration tests host the API in-process on a Testcontainers Postgres | accepted | 2026-09-17 |
+| [0016](0016-mcp-server.md) | MCP server as a Node.js service over the load balancer | accepted | 2026-09-20 |
 | [0017](0017-drop-mui-and-legacy-reminder-routes.md) | Drop MUI and the legacy reminder routes | accepted | 2026-09-20 |
 
 ## Process
