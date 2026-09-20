@@ -34,13 +34,17 @@ walk this list explicitly before reporting, on top of the checklist below:
 - A schema change with a migration for only one provider (Postgres and
   SqlServer both need one).
 - A missing ADR for an architecture, workflow, or tooling decision.
+- Local machine details published to GitHub: an absolute path (`/home/...`),
+  a machine username, or a PID in the diff, the pull request body, or a commit
+  message. This repository is public and `gh` posts as the maintainer.
 
 ## What to review
 
 - **Correctness**: bugs, unhandled errors, broken contracts between the .NET, Go
   and C++ APIs and the React, MVC and Flutter clients.
 - **Security**: secrets in code or compose files, injection, XSS, unsafe
-  defaults.
+  defaults, local machine details (absolute paths, username, PIDs) published
+  anywhere a reader can see them.
 - **Repo rules**: conventional pull request title, minimal change (no new
   dependency without need), migrations for both Postgres and SqlServer on schema
   changes, Cypress specs updated for React UI or API contract changes, an ADR

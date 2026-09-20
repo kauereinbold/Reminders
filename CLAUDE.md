@@ -71,7 +71,7 @@ Product intent lives in `docs/product/` (vision, PRD template, index). Feature-s
 
 Multiple agents may work this repo in parallel. Rules:
 
-- Claim work by assigning yourself or commenting on the issue before starting.
+- Claim work by assigning yourself the issue before starting. Do not post claim, status, or progress comments on issues or pull requests: they are noise on a public repo, and the maintainer reads the session, not the thread.
 - One issue = one branch = one PR. Never share branches between agents.
 - Do not start an issue already claimed by another agent (check assignees/comments).
 - State that outlives your session goes in: GitHub Issues (status, findings), ADRs (decisions), PR descriptions (implementation notes). Never assume other agents share your conversation context.
@@ -185,3 +185,4 @@ docker compose config -q
 - Changes touching the React UI or the API contract update the matching Cypress specs (`src/test/cypress/cypress/e2e/`) and run them locally before the PR; new user-facing flows get a new spec.
 - Changes to compose files, Dockerfiles, or `infrastructure/` require a runtime smoke test before opening the PR: boot the affected profile (`docker compose --profile api up --build -d`), hit an endpoint, then tear down. `docker compose config -q` alone is not enough.
 - No secrets in code or compose files: use `.env` (gitignored); `.env.example` holds placeholders only.
+- Never publish local machine details to GitHub: absolute paths (`/home/...`), the machine username, PIDs, or host-specific layout. This covers issue bodies and comments, PR titles, bodies and comments, review replies, commit messages, and tracked files. Local paths belong in the session transcript, not in the repository. Editing a leaked comment does not scrub it: GitHub keeps comment edit history visible on public repos, so delete it.
