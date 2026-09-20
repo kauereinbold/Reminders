@@ -58,15 +58,63 @@ API_BASE_URL=http://localhost:9999 npm start
 
 ## Connect an AI client
 
-### Claude Code
+Bring the stack up first: the clients below talk to the container over
+streamable HTTP at `http://localhost:9998/mcp`.
 
-HTTP, with the compose service running:
+```bash
+docker compose --profile api --profile mcp up -d --build
+```
+
+The repository ships a workspace `.mcp.json` at its root pointing at that URL.
+Claude Code and Copilot CLI read it, so cloning the repo is enough for both.
+Codex CLI does not read workspace files and needs its own user level config.
+
+### Claude Code
 
 ```bash
 claude mcp add --transport http reminders http://localhost:9998/mcp
+claude mcp list   # reminders: http://localhost:9998/mcp (HTTP) - Connected
 ```
 
-stdio, with the stack running and the project built:
+That writes local project scope to `~/.claude.json`. Use `--scope project` to
+write the committed `.mcp.json` instead, which shares the server with anyone who
+clones the repo.
+
+### Copilot CLI
+
+```bash
+copilot mcp add --transport http reminders http://localhost:9998/mcp
+```
+
+Config comes from `~/.copilot/mcp-config.json` for the user, and from
+`.mcp.json` or `.github/mcp.json` in the workspace. Interactive runs prompt
+before a tool call. A non interactive run has to allow the server explicitly:
+
+```bash
+copilot -p 'list my reminders' --allow-tool 'reminders'
+```
+
+Without `--allow-tool` the call fails with "Permission denied and could not
+request permission from user".
+
+### Codex CLI
+
+```bash
+codex mcp add reminders --url http://localhost:9998/mcp
+codex mcp list
+```
+
+That writes `~/.codex/config.toml` globally. Interactive runs prompt for
+approval. A headless `codex exec` run stops with "MCP tool call requires
+approval, but approval policy is never", so it needs an approval policy that
+permits the call.
+
+### stdio instead of HTTP
+
+Clients that prefer to spawn the process use the stdio transport, which is the
+default when `MCP_TRANSPORT` is unset. Build the project first (`npm install &&
+npm run build`), keep the api profile running, and point the client at the entry
+point:
 
 ```bash
 claude mcp add reminders \
@@ -74,9 +122,7 @@ claude mcp add reminders \
   -- node /absolute/path/to/src/server/services/nodejs/reminders-mcp-server/dist/src/index.js
 ```
 
-### Claude Desktop and other stdio clients
-
-In `claude_desktop_config.json`:
+The same shape as a JSON config block, for Claude Desktop and others:
 
 ```json
 {
@@ -89,9 +135,6 @@ In `claude_desktop_config.json`:
   }
 }
 ```
-
-Any client that speaks streamable HTTP points at `http://localhost:9998/mcp`
-instead.
 
 ## Tests
 
