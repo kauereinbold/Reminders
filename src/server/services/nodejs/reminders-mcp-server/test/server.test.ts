@@ -58,3 +58,9 @@ test('an API failure comes back as a readable tool error, not a protocol error',
   assert.equal(invalid.isError, true);
   assert.match(invalid.text, /title: The field is Required/);
 });
+
+test('a malformed id is rejected by the schema before any request is made', async () => {
+  const result = await call('reminders_get', { id: 'not-a-guid' });
+  assert.equal(result.isError, true);
+  assert.match(result.text, /id/);
+});

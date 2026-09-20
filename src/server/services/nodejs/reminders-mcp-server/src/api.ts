@@ -39,7 +39,7 @@ export class RemindersApi {
   }
 
   get(id: string): Promise<Reminder> {
-    return this.send<Reminder>('GET', `/${id}`);
+    return this.send<Reminder>('GET', `/${encodeURIComponent(id)}`);
   }
 
   create(reminder: Reminder): Promise<Reminder> {
@@ -47,11 +47,11 @@ export class RemindersApi {
   }
 
   update(id: string, reminder: Reminder): Promise<Reminder> {
-    return this.send<Reminder>('PUT', `/${id}`, reminder);
+    return this.send<Reminder>('PUT', `/${encodeURIComponent(id)}`, reminder);
   }
 
   delete(id: string): Promise<void> {
-    return this.send<void>('DELETE', `/${id}`);
+    return this.send<void>('DELETE', `/${encodeURIComponent(id)}`);
   }
 
   private async send<T>(method: string, path: string, body?: unknown): Promise<T> {

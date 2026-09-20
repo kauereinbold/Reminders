@@ -2,10 +2,12 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { ApiError, RemindersApi, type Reminder } from './api.js';
 
-const idField = z.string().describe('Reminder id (GUID)');
-const limitDateField = z
-  .string()
-  .describe('Due date, either YYYY-MM-DD or RFC3339 such as 2026-09-30T00:00:00Z. Must be in the future on create');
+const idField = z.string().uuid().describe('Reminder id (GUID)');
+const dateFormat = 'either YYYY-MM-DD or RFC3339 such as 2026-09-30T00:00:00Z';
+// Past dates are rejected on create and accepted on update (ADR-0011), so the
+// two tools cannot share one description: for a model, the text is the contract.
+const createLimitDateField = z.string().describe(`Due date, ${dateFormat}. Must be later than today`);
+const updateLimitDateField = z.string().describe(`New due date, ${dateFormat}. May be in the past`);
 
 /** Builds the MCP server with one tool per Reminders API operation. */
 export function createServer(api: RemindersApi): McpServer {
@@ -39,7 +41,7 @@ export function createServer(api: RemindersApi): McpServer {
       inputSchema: {
         title: z.string().max(50).describe('Short title, at most 50 characters'),
         description: z.string().max(200).describe('Details, at most 200 characters'),
-        limitDate: limitDateField,
+        limitDate: createLimitDateField,
         isDone: z.boolean().optional().describe('Whether the reminder is already done, defaults to false')
       }
     },
@@ -56,7 +58,7 @@ export function createServer(api: RemindersApi): McpServer {
         id: idField,
         title: z.string().max(50).optional().describe('New title'),
         description: z.string().max(200).optional().describe('New description'),
-        limitDate: limitDateField.optional(),
+        limitDate: updateLimitDateField.optional(),
         isDone: z.boolean().optional().describe('New done flag')
       }
     },
