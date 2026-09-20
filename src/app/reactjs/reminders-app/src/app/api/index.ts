@@ -40,11 +40,6 @@ const liveGetReminders = (): Promise<Reminder[]> =>
     .then(response => response.json())
     .then(data => data?.map(mapReminder));
 
-const liveGetReminder = (id: string): Promise<Reminder> =>
-  fetch(`${API_BASE_URL}/api/reminders/${id}`)
-    .then(response => response.json())
-    .then(mapReminder);
-
 const liveCreateReminder = async (
   reminder: Reminder,
 ): Promise<MutateResult<Reminder>> => {
@@ -107,7 +102,6 @@ const liveDeleteReminder = async (
 };
 
 const getReminders = IS_MOCK_API ? mock.getReminders : liveGetReminders;
-const getReminder = IS_MOCK_API ? mock.getReminder : liveGetReminder;
 const createReminder = IS_MOCK_API ? mock.createReminder : liveCreateReminder;
 const updateReminder = IS_MOCK_API ? mock.updateReminder : liveUpdateReminder;
 const deleteReminder = IS_MOCK_API ? mock.deleteReminder : liveDeleteReminder;
@@ -118,7 +112,6 @@ export {
   API_BASE_URL,
   IS_MOCK_API,
   getReminders,
-  getReminder,
   createReminder,
   updateReminder,
   deleteReminder,

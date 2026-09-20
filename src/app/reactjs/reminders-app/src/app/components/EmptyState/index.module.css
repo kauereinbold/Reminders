@@ -1,0 +1,40 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 64px 32px;
+  text-align: center;
+  background: var(--empty-fill);
+  border: 1px dashed var(--border-dashed);
+  border-radius: 18px;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 27px;
+}
+
+.body {
+  font-size: 15px;
+  line-height: 1.55;
+  max-width: 320px;
+  color: var(--body-muted);
+}
+
+.button {
+  margin-top: 8px;
+  min-height: 44px;
+  padding: 12px 22px;
+  font: inherit;
+  font-size: 14.5px;
+  color: var(--input-fill);
+  background: var(--ink);
+  border: none;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--accent);
+}

@@ -43,9 +43,8 @@ echo "✅ Cypress configuration found"
 # Check test files
 test_files=(
     "cypress/e2e/reminders-list.cy.js"
-    "cypress/e2e/reminder-create.cy.js"
-    "cypress/e2e/reminder-edit.cy.js"
-    "cypress/e2e/reminder-delete.cy.js"
+    "cypress/e2e/reminders-mobile.cy.js"
+    "cypress/e2e/reminder-modal.cy.js"
     "cypress/e2e/reminders-integration.cy.js"
 )
 
@@ -107,9 +106,8 @@ echo "✅ Found $describe_count test suites"
 # Validate test structure
 echo "📊 Test Coverage Summary:"
 echo "  - List tests: $(grep -c "it('" cypress/e2e/reminders-list.cy.js) test cases"
-echo "  - Create tests: $(grep -c "it('" cypress/e2e/reminder-create.cy.js) test cases"
-echo "  - Edit tests: $(grep -c "it('" cypress/e2e/reminder-edit.cy.js) test cases"
-echo "  - Delete tests: $(grep -c "it('" cypress/e2e/reminder-delete.cy.js) test cases"
+echo "  - Mobile tests: $(grep -c "it('" cypress/e2e/reminders-mobile.cy.js) test cases"
+echo "  - Modal tests: $(grep -c "it('" cypress/e2e/reminder-modal.cy.js) test cases"
 echo "  - Integration tests: $(grep -c "it('" cypress/e2e/reminders-integration.cy.js) test cases"
 
 echo ""

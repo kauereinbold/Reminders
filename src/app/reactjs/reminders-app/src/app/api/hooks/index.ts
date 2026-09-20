@@ -1,7 +1,6 @@
 import {
   createReminder,
   deleteReminder,
-  getReminder,
   getReminders,
   updateReminder,
 } from '@/app/api';
@@ -15,13 +14,6 @@ const useReminders = () => useQuery({
   queryKey: [REMINDER_QUERY_NAME],
   queryFn: getReminders,
 });
-
-const useReminder = (id: string) =>
-  useQuery({
-    queryKey: ['reminder', id],
-    queryFn: () => getReminder(id),
-    enabled: Boolean(id),
-  });
 
 const useCreateReminder = () => {
   return useMutation({
@@ -41,20 +33,10 @@ const useDeleteReminder = () => {
   });
 };
 
-const useReminderActions = () => {
-  return {
-    createReminder: useCreateReminder(),
-    updateReminder: useUpdateReminder(),
-    deleteReminder: useDeleteReminder(),
-  };
-};
-
 export {
   REMINDERS_QUERY_KEY,
   useReminders,
-  useReminder,
   useCreateReminder,
   useUpdateReminder,
   useDeleteReminder,
-  useReminderActions,
 };

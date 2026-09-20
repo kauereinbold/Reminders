@@ -1,6 +1,5 @@
 import {
   getReminders,
-  getReminder,
   createReminder,
   updateReminder,
   deleteReminder,
@@ -57,23 +56,6 @@ describe('API functions', () => {
       );
       expect(mockResponse.json).toHaveBeenCalled();
       expect(reminders).toEqual([{ id: '1', ...mockReminder }]);
-    });
-  });
-
-  describe('getReminder', () => {
-    it('should fetch a single reminder from the API', async () => {
-      const mockResponse = {
-        json: jest.fn().mockResolvedValueOnce({ id: '1', ...mockReminder }),
-      };
-      (global.fetch as jest.Mock).mockResolvedValueOnce(mockResponse);
-
-      const reminder = await getReminder('1');
-
-      expect(global.fetch).toHaveBeenCalledWith(
-        `${API_BASE_URL}/api/reminders/1`,
-      );
-      expect(mockResponse.json).toHaveBeenCalled();
-      expect(reminder).toEqual({ id: '1', ...mockReminder });
     });
   });
 
@@ -199,13 +181,13 @@ describe('API functions', () => {
         limitDateFormatted: '',
       };
       const mockResponse = {
-        json: jest.fn().mockResolvedValueOnce({ id: '1', ...copy }),
+        json: jest.fn().mockResolvedValueOnce([{ id: '1', ...copy }]),
       };
       (global.fetch as jest.Mock).mockResolvedValueOnce(mockResponse);
 
-      const reminder = await getReminder('1');
+      const reminders = await getReminders();
 
-      expect(reminder).toEqual({ id: '1', ...copy });
+      expect(reminders).toEqual([{ id: '1', ...copy }]);
     });
 
     it('should isDoneFormatted be Yes when isDone is true', async () => {
@@ -215,13 +197,13 @@ describe('API functions', () => {
         isDoneFormatted: 'Yes',
       };
       const mockResponse = {
-        json: jest.fn().mockResolvedValueOnce({ id: '1', ...copy }),
+        json: jest.fn().mockResolvedValueOnce([{ id: '1', ...copy }]),
       };
       (global.fetch as jest.Mock).mockResolvedValueOnce(mockResponse);
 
-      const reminder = await getReminder('1');
+      const reminders = await getReminders();
 
-      expect(reminder).toEqual({ id: '1', ...copy });
+      expect(reminders).toEqual([{ id: '1', ...copy }]);
     });
   });
 

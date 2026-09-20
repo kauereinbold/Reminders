@@ -1,21 +1,21 @@
 # Reminders App (React / Next.js)
 
-The React frontend for Reminders, built with Next.js App Router, TypeScript, and Material-UI.
+The React frontend for Reminders, built with Next.js App Router, TypeScript, and plain CSS modules.
 
 ## Stack
 
 - **Next.js 15** (App Router) + **React 19**
 - **TypeScript**, strict mode enabled
-- **Material-UI v7** for components
+- **CSS modules** over the design tokens in `src/app/globals.css`, no UI framework
 - **@tanstack/react-query** for API data fetching
 - **Jest** + **React Testing Library** for unit tests
 
 ## Features
 
-- List, create, edit, and delete reminders
-- Form validation on create/edit
+- Grouped reminder list (Overdue, Today, Upcoming, Done) with search and view filters
+- Create, edit and delete from overlays on the list, with empty states per view and search
 - Toggle reminder "done" status
-- Responsive layout via Material-UI
+- Responsive layout: sidebar on desktop, filter chips and a FAB under 760px
 
 ## Prerequisites
 
@@ -95,7 +95,7 @@ npm test
 npm test -- --coverage
 ```
 
-Tests live alongside the code they cover, e.g. `src/app/components/ReminderForm/index.test.tsx`.
+Tests live alongside the code they cover, e.g. `src/app/components/ReminderSheet/index.test.tsx`.
 
 ## Build
 
@@ -115,10 +115,10 @@ npm run lint
 ```text
 src/app/
 ├── api/            # API client, in-browser mock, hooks, and types
-├── components/     # Reusable UI components (AlertError, ReminderForm, ReminderDeleteModal)
+├── components/     # Reusable UI components (AppHeader, Sidebar, ReminderCard, ReminderSheet, ReminderDeleteModal, EmptyState)
 ├── constants/       # Shared constants
-├── hooks/          # Custom React hooks (context, query client)
-├── reminder/       # Route segments: list, create, edit (App Router)
+├── hooks/          # Custom React hooks (query client, escape key, focus return)
+├── reminder/       # Route segments: list (App Router); create and edit are overlays on it
 ├── services/       # Validation and other client-side services
 └── util/           # Utility helpers
 ```

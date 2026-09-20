@@ -9,10 +9,10 @@ CI runs use the official [`cypress-io/github-action`](https://github.com/cypress
 ## Overview
 
 The Cypress test suite covers four main areas of functionality:
-- **List**: Viewing and navigating reminders
-- **Creation**: Creating new reminders
-- **Editing**: Modifying existing reminders
-- **Deletion**: Removing reminders with confirmation
+- **List**: the grouped list, view filters, search and empty states
+- **Mobile**: the shell under 760px (chips, progress strip, FAB)
+- **Modal**: creating and editing in the sheet
+- **Deletion**: removing reminders with confirmation
 
 ## Project Structure
 
@@ -20,10 +20,9 @@ The Cypress test suite covers four main areas of functionality:
 src/test/cypress/
 ├── cypress/
 │   ├── e2e/                    # Test files
-│   │   ├── reminders-list.cy.js      # List functionality tests
-│   │   ├── reminder-create.cy.js     # Create functionality tests
-│   │   ├── reminder-edit.cy.js       # Edit functionality tests
-│   │   ├── reminder-delete.cy.js     # Delete functionality tests
+│   │   ├── reminders-list.cy.js      # List, filters, search, empty states
+│   │   ├── reminders-mobile.cy.js    # Mobile shell under 760px
+│   │   ├── reminder-modal.cy.js      # Create/edit sheet and delete dialog
 │   │   └── reminders-integration.cy.js # Integration tests
 │   ├── fixtures/               # Test data
 │   │   ├── reminders.json            # Sample reminders data
@@ -99,14 +98,11 @@ Use tags to run specific test categories:
 # Run only list tests
 npx cypress run --env grep="@list"
 
-# Run only create tests
-npx cypress run --env grep="@create"
+# Run only mobile tests
+npx cypress run --env grep="@mobile"
 
-# Run only edit tests
-npx cypress run --env grep="@edit"
-
-# Run only delete tests
-npx cypress run --env grep="@delete"
+# Run only modal tests (create, edit, delete confirmation)
+npx cypress run --env grep="@modal"
 
 # Run only integration tests
 npx cypress run --env grep="@integration"
@@ -115,31 +111,18 @@ npx cypress run --env grep="@integration"
 ## Test Categories
 
 ### List Tests (`reminders-list.cy.js`)
-- Display reminders list
+- Display the grouped reminders list and the desktop shell
 - Handle loading states
-- Navigate to create/edit pages
-- Verify table structure and data
+- Filter by view and search, toggle a reminder from a card
+- Empty states per view and for a search with no match
 
-### Create Tests (`reminder-create.cy.js`)
-- Display create form
-- Create new reminders successfully
-- Handle form validation errors
-- Navigate back to home page
-- Handle server errors
+### Mobile Tests (`reminders-mobile.cy.js`)
+- Filter chips, progress strip and FAB under 760px
 
-### Edit Tests (`reminder-edit.cy.js`)
-- Display edit form with existing data
-- Update reminders successfully
-- Toggle done status
-- Handle form validation errors
-- Navigate back to home page
-
-### Delete Tests (`reminder-delete.cy.js`)
-- Display delete confirmation modal
-- Cancel delete operation
-- Delete reminders successfully
-- Handle server errors
-- Test modal accessibility
+### Modal Tests (`reminder-modal.cy.js`)
+- Create and edit from the sheet, with API and field errors
+- Close on Escape, scrim click, Close and Cancel
+- Delete confirmation: confirm, dismiss, accessibility, server error
 
 ### Integration Tests (`reminders-integration.cy.js`)
 - Complete CRUD journey
@@ -152,15 +135,13 @@ npx cypress run --env grep="@integration"
 
 The test suite includes custom Cypress commands for common operations:
 
-- `cy.createReminder(title, description, limitDate)` - Create a new reminder
-- `cy.editReminder(title, description, limitDate, isDone)` - Edit an existing reminder
-- `cy.deleteReminder()` - Delete a reminder with confirmation
-- `cy.goToCreateReminder()` - Navigate to create page
-- `cy.goToEditReminder(id)` - Navigate to edit page for specific reminder
-- `cy.goBack()` - Navigate back to home page
+- `cy.openCreateSheet()` - Open the create sheet from the header button
+- `cy.openEditSheet(title)` - Open the edit sheet from a reminder card
+- `cy.fillSheet(title, description, limitDate)` - Fill the open sheet
+- `cy.saveSheet()` - Submit the open sheet
+- `cy.deleteFromSheet()` - Delete from the sheet and confirm
 - `cy.mockRemindersAPI()` - Set up API mocks
 - `cy.waitForAppReady()` - Wait for app to be fully loaded
-- `cy.verifyReminderInList(id, title, description, limitDate, isDone)` - Verify reminder in list
 
 ## Configuration
 

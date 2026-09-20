@@ -15,10 +15,6 @@ import {
   mockUpdateMutateAsync,
 } from '@/app/util/testMocks';
 
-jest.mock(
-  'next/navigation',
-  require('@/app/util/testMocks').jestFunctionsMock['next/navigation'],
-);
 jest.mock('@/app/api', require('@/app/util/testMocks').jestFunctionsMock['@/app/api']);
 jest.mock(
   '@/app/hooks',
@@ -137,6 +133,44 @@ describe('RemindersList', () => {
 
     fireEvent.change(search, { target: { value: 'nothing' } });
     expect(screen.queryByRole('article')).not.toBeInTheDocument();
+  });
+
+  it('shows the search empty state when nothing matches', () => {
+    render(<RemindersList />);
+
+    fireEvent.change(screen.getByPlaceholderText('Search reminders'), {
+      target: { value: 'nothing' },
+    });
+
+    expect(screen.getByTestId('empty-state')).toBeInTheDocument();
+    expect(screen.getByText('No matches')).toBeInTheDocument();
+    expect(
+      screen.getByText('No reminder matches "nothing".'),
+    ).toBeInTheDocument();
+  });
+
+  it('holds the empty state back while the first load is pending', () => {
+    const { useReminders } = jest.requireMock('@/app/api');
+    useReminders.mockReturnValueOnce({ data: undefined, isPending: true });
+
+    render(<RemindersList />);
+
+    expect(screen.queryByTestId('empty-state')).not.toBeInTheDocument();
+  });
+
+  it('shows the view empty state and creates from it', () => {
+    render(<RemindersList />);
+
+    const sidebar = within(screen.getByRole('complementary'));
+    fireEvent.click(sidebar.getByRole('button', { name: 'Upcoming 0' }));
+
+    expect(screen.getByText('Nothing scheduled')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add a reminder' }));
+
+    expect(
+      screen.getByRole('dialog', { name: 'New reminder' }),
+    ).toBeInTheDocument();
   });
 
   it('opens the create sheet from the New reminder button', () => {

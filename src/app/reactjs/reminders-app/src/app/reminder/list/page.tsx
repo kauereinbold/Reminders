@@ -13,6 +13,7 @@ import {
 } from '@/app/api';
 import {
   AppHeader,
+  EmptyState,
   ReminderCard,
   ReminderDeleteModal,
   ReminderSheet,
@@ -36,7 +37,7 @@ const REQUEST_FAILED: Errors = {
 };
 
 export default function RemindersList() {
-  const { data: reminders } = useReminders();
+  const { data: reminders, isPending } = useReminders();
   const queryClient = useRemindersQueryClient();
   const createReminder = useCreateReminder();
   const updateReminder = useUpdateReminder();
@@ -168,6 +169,17 @@ export default function RemindersList() {
         />
 
         <main className={styles.list} ref={listRef} tabIndex={-1}>
+          {/* `items` is empty while the first fetch is in flight, so the
+              empty state waits for it rather than flashing over a list that
+              is about to arrive. */}
+          {!isPending && groups.length === 0 && (
+            <EmptyState
+              view={view}
+              query={query}
+              onCreate={handleCreateClick}
+            />
+          )}
+
           {groups.map(group => (
             <section key={group.label} className={styles.section}>
               <div className={styles.sectionHeader}>

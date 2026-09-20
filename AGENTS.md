@@ -168,7 +168,7 @@ public class RemindersController : ControllerBase
 - **Next.js App Router**: Server components by default
 - **Client Components**: Mark with `'use client'` directive
 - **Data Fetching**: `@tanstack/react-query` for server state
-- **Styling**: Material-UI v7 components
+- **Styling**: CSS modules over the design tokens in `src/app/globals.css`
 - **Path Alias**: Use `@/app` for imports
 - **TypeScript**: Strict mode enabled
 
@@ -176,22 +176,24 @@ public class RemindersController : ControllerBase
 ```tsx
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useRemindersContext } from '@/app/hooks';
+import { useState } from 'react';
 
-export default function EditClient() {
-  const { onUpdateReminder } = useRemindersContext();
-  const router = useRouter();
-  
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const status = await onUpdateReminder();
-    if (status === ReminderActionStatus.Success) {
-      router.push('/');
-    }
+import { Reminder, useReminders, useUpdateReminder } from '@/app/api';
+
+import styles from './index.module.css';
+
+export default function DoneToggle() {
+  const { data: reminders } = useReminders();
+  const updateReminder = useUpdateReminder();
+  const [busy, setBusy] = useState(false);
+
+  const toggle = async (reminder: Reminder) => {
+    setBusy(true);
+    await updateReminder.mutateAsync({ ...reminder, isDone: !reminder.isDone });
+    setBusy(false);
   };
-  
-  return <form onSubmit={handleSubmit}>...</form>;
+
+  return <ul className={styles.list}>...</ul>;
 }
 ```
 
@@ -298,7 +300,7 @@ public async Task AddRangeAsync(IEnumerable<Reminder> reminders)
 
 1. Place in `src/app/reactjs/reminders-app/src/app/components/`
 2. Export from `index.ts` barrel file
-3. Use Material-UI components for consistency
+3. Style with a CSS module over the `globals.css` design tokens
 4. Add tests in `.test.tsx` file (target 99%+ coverage)
 
 ### Blockchain Contract Changes

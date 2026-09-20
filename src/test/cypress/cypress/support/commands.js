@@ -8,34 +8,6 @@
 // https://on.cypress.io/custom-commands
 // ***********************************************
 
-// Custom commands for Reminders app
-Cypress.Commands.add('createReminder', (title, description, limitDate) => {
-  cy.get('input[data-testid="title"]', { timeout: 10000 }).should('be.visible').clear().type(title)
-  cy.get('input[data-testid="description"]').should('be.visible').clear().type(description)
-  cy.get('input[data-testid="limitDate"]').should('be.visible').clear().type(limitDate)
-  cy.get('button[type="submit"]').contains('Create').should('be.visible').click()
-})
-
-Cypress.Commands.add('editReminder', (title, description, limitDate, isDone = false) => {
-  cy.get('input[data-testid="title"]', { timeout: 10000 }).should('be.visible').clear().type(title)
-  cy.get('input[data-testid="description"]').should('be.visible').clear().type(description)
-  cy.get('input[data-testid="limitDate"]').should('be.visible').clear().type(limitDate)
-  
-  // Handle checkbox for done status
-  if (isDone) {
-    cy.get('input[data-testid="isDone"]').check()
-  } else {
-    cy.get('input[data-testid="isDone"]').uncheck()
-  }
-  
-  cy.get('button[type="submit"]').contains('Edit').should('be.visible').click()
-})
-
-Cypress.Commands.add('deleteReminder', () => {
-  cy.get('button').contains('Delete').should('be.visible').click()
-  cy.get('button[data-testid="delete-button"]').should('be.visible').click()
-})
-
 // Create/edit modal helpers (the list opens a modal, it does not navigate)
 Cypress.Commands.add('openCreateSheet', () => {
   cy.get('button').contains('New reminder').should('be.visible').click()
@@ -65,11 +37,6 @@ Cypress.Commands.add('deleteFromSheet', () => {
   cy.get('button').contains('Delete reminder').click()
   cy.contains('Delete this reminder?').should('be.visible')
   cy.get('[data-testid="delete-button"]').click()
-})
-
-Cypress.Commands.add('goBack', () => {
-  cy.get('button').contains('Back').should('be.visible').click()
-  cy.url().should('eq', Cypress.config().baseUrl + '/')
 })
 
 // API intercept helpers
@@ -122,12 +89,4 @@ Cypress.Commands.add('mockRemindersAPI', () => {
 Cypress.Commands.add('waitForAppReady', () => {
   cy.get('main', { timeout: 15000 }).should('be.visible')
   cy.get('button').contains('New reminder', { timeout: 10000 }).should('be.visible')
-})
-
-// Verify reminder card in list
-Cypress.Commands.add('verifyReminderInList', (id, title, description, limitDate, isDone) => {
-  cy.get('article').contains(title).parents('article').within(() => {
-    cy.contains(description).should('be.visible')
-    cy.get(`button[aria-label="${isDone ? 'Mark not done' : 'Mark done'}"]`).should('exist')
-  })
 })
