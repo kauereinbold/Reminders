@@ -34,8 +34,9 @@ Remove the pages, `ReminderForm`, `AlertError` and the reminder context that
 existed only to feed them, and drop `@mui/material`, `@emotion/react`,
 `@emotion/styled` and `use-context-selector`. Buys one form, one dependency
 tree, one set of specs. Costs: `/reminder/create` and `/reminder/edit` stop
-resolving, and the API hooks those pages used (`useReminder`,
-`useReminderActions`) go with them.
+resolving, and the API client code only those pages
+reached (`useReminder`, `useReminderActions`, and the single-reminder
+`getReminder`) goes with them.
 
 ## Decision
 

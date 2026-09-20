@@ -94,11 +94,6 @@ const notFound = (id?: string): Errors => ({
 const getReminders = (): Promise<Reminder[]> =>
   Promise.resolve(reminders.map(reminder => ({ ...reminder })));
 
-const getReminder = (id: string): Promise<Reminder> => {
-  const found = reminders.find(reminder => reminder.id === id);
-  return Promise.resolve(found ? { ...found } : ({} as Reminder));
-};
-
 const createReminder = (
   reminder: Reminder,
 ): Promise<MutateResult<Reminder>> => {
@@ -145,7 +140,6 @@ const resetReminders = () => {
 
 export {
   getReminders,
-  getReminder,
   createReminder,
   updateReminder,
   deleteReminder,

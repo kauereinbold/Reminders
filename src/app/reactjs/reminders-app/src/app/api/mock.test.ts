@@ -1,7 +1,6 @@
 import {
   createReminder,
   deleteReminder,
-  getReminder,
   getReminders,
   resetReminders,
   updateReminder,
@@ -25,14 +24,6 @@ describe('mock API', () => {
     expect(reminders).toHaveLength(5);
     expect(reminders[0].limitDateFormatted).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(reminders[0].isDoneFormatted).toBe('No');
-  });
-
-  it('returns a single reminder by id', async () => {
-    expect((await getReminder('2')).id).toBe('2');
-  });
-
-  it('returns an empty reminder for an unknown id', async () => {
-    expect(await getReminder('nope')).toEqual({});
   });
 
   it('creates a reminder with a new id', async () => {
@@ -103,7 +94,8 @@ describe('mock API', () => {
 
     expect(result?.title).toBe('Water the plants');
     expect(result?.isDoneFormatted).toBe('Yes');
-    expect((await getReminder('1')).title).toBe('Water the plants');
+    const stored = (await getReminders()).find(item => item.id === '1');
+    expect(stored?.title).toBe('Water the plants');
   });
 
   it('reports an update for an unknown reminder', async () => {
